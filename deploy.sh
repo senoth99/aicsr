@@ -9,10 +9,11 @@
 # Синхронизация на сервер (нужны DEPLOY_HOST и т.д. в .env):
 #   ./deploy.sh push
 #
-# Локальная разработка с авто-освобождением порта — по-прежнему: npm start
+# Локальная разработка — npm start
 #
-# На чистом Ubuntu без Node: bash scripts/install-node-ubuntu.sh
-# Или в .env: NODE_BIN=/путь/к/node
+# На чистом Ubuntu (Timeweb и т.д.): достаточно ./deploy.sh — Node поставится сам
+# (apt-get + NodeSource). Отключить: AUTO_INSTALL_NODE=0 в .env
+# Или вручную: NODE_BIN=/usr/bin/node
 #
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,11 +47,28 @@ case "$cmd" in
     if NODE_EXE=$(find_node_exe); then
       exec "$NODE_EXE" server.mjs
     fi
+    try_auto_install=true
+    if [[ "${AUTO_INSTALL_NODE:-1}" == "0" ]]; then
+      try_auto_install=false
+    fi
+    if $try_auto_install && [[ -f "$ROOT/scripts/install-node-ubuntu.sh" ]] && command -v apt-get >/dev/null 2>&1; then
+      echo "" >&2
+      echo "Node.js не найден — запускаю автоустановку (NodeSource 22.x, apt). Подожди 1–2 минуты…" >&2
+      echo "" >&2
+      if ! bash "$ROOT/scripts/install-node-ubuntu.sh"; then
+        echo "" >&2
+        echo "Автоустановка Node не удалась. Запусти вручную: bash scripts/install-node-ubuntu.sh" >&2
+        exit 1
+      fi
+      hash -r 2>/dev/null || true
+      if NODE_EXE=$(find_node_exe); then
+        exec "$NODE_EXE" server.mjs
+      fi
+    fi
     echo "" >&2
-    echo "Ошибка: не найден Node.js (команда node не в PATH)." >&2
-    echo "На Ubuntu/Debian установи, например:" >&2
-    echo "  bash scripts/install-node-ubuntu.sh" >&2
-    echo "Или задай в .env полный путь: NODE_BIN=/usr/bin/node" >&2
+    echo "Ошибка: не найден Node.js после установки или на этой ОС нет apt-get." >&2
+    echo "Варианты: поставить Node 18+ вручную, либо в .env указать NODE_BIN=/полный/путь/node" >&2
+    echo "Отключить попытку автоустановки: AUTO_INSTALL_NODE=0" >&2
     echo "" >&2
     exit 127
     ;;
