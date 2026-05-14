@@ -142,4 +142,6 @@ server.listen(PORT, () => {
   console.log("  AI Agents — http://0.0.0.0:" + PORT + "/index.html");
   console.log("  NODE_ENV=" + (process.env.NODE_ENV || "(not set)") + "  WEBHOOK_UPSTREAM=" + UPSTREAM);
   console.log("");
+  console.log("  (Процесс не завершится — это HTTP-сервер. Останов: Ctrl+C или systemctl.)");
+  console.log("");
 });

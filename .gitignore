@@ -1,4 +1,6 @@
 .env
 .DS_Store
 *.log
+aicsr.log
+aicsr.pid
 node_modules/
