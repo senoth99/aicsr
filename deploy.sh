@@ -11,9 +11,15 @@
 #
 # Локальная разработка с авто-освобождением порта — по-прежнему: npm start
 #
+# На чистом Ubuntu без Node: bash scripts/install-node-ubuntu.sh
+# Или в .env: NODE_BIN=/путь/к/node
+#
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
+
+# shellcheck source=scripts/node-path.sh
+source "$ROOT/scripts/node-path.sh"
 
 if [[ ! -f .env ]] && [[ -f "$ROOT/.env.example" ]]; then
   cp "$ROOT/.env.example" "$ROOT/.env"
@@ -37,7 +43,16 @@ case "$cmd" in
   run | start | "")
     echo "AI Agents — NODE_ENV=$NODE_ENV PORT=$PORT"
     echo "WEBHOOK_UPSTREAM=$WEBHOOK_UPSTREAM"
-    exec node server.mjs
+    if NODE_EXE=$(find_node_exe); then
+      exec "$NODE_EXE" server.mjs
+    fi
+    echo "" >&2
+    echo "Ошибка: не найден Node.js (команда node не в PATH)." >&2
+    echo "На Ubuntu/Debian установи, например:" >&2
+    echo "  bash scripts/install-node-ubuntu.sh" >&2
+    echo "Или задай в .env полный путь: NODE_BIN=/usr/bin/node" >&2
+    echo "" >&2
+    exit 127
     ;;
   push | ship)
     if [[ -z "${DEPLOY_HOST:-}" ]]; then
