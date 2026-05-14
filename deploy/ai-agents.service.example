@@ -1,0 +1,19 @@
+[Unit]
+Description=AI Agents (статика + прокси вебхука)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/ai-agents
+EnvironmentFile=-/opt/ai-agents/.env
+ExecStart=/usr/bin/node server.mjs
+Restart=on-failure
+RestartSec=4
+AmbientCapabilities=
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
