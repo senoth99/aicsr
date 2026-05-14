@@ -76,7 +76,9 @@ find_node_or_install() {
 print_foreground_hint() {
   echo "" >&2
   echo "── Сервер запущен. Терминал «молчит» — это нормально: процесс слушает порт $PORT." >&2
-  echo "   Останов: Ctrl+C   |   В фоне без блокировки: ./deploy.sh background" >&2
+  echo "   В браузере: http://<IP-сервера>:${PORT}/index.html  (порт :${PORT} обязателен, не просто :80)" >&2
+  echo "   В панели Timeweb / VPS открой входящий TCP ${PORT} в фаерволе, если страница не открывается." >&2
+  echo "   Останов: Ctrl+C   |   В фоне: ./deploy.sh background" >&2
   echo "" >&2
 }
 
@@ -96,7 +98,7 @@ case "$cmd" in
     nohup "$NODE_EXE" server.mjs >>"$ROOT/aicsr.log" 2>&1 &
     echo $! >"$ROOT/aicsr.pid"
     echo "PID $(cat "$ROOT/aicsr.pid")  лог: $ROOT/aicsr.log"
-    echo "URL: http://0.0.0.0:$PORT/index.html (снаружи — IP сервера и порт $PORT)"
+    echo "В браузере: http://<IP-сервера>:${PORT}/index.html  (порт ${PORT}; открой TCP ${PORT} в фаерволе хостинга)"
     ;;
   push | ship)
     if [[ -z "${DEPLOY_HOST:-}" ]]; then

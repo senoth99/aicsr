@@ -137,9 +137,11 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log("");
-  console.log("  AI Agents — http://0.0.0.0:" + PORT + "/index.html");
+  console.log("  Слушаю 0.0.0.0:" + PORT + " (все IPv4-интерфейсы)");
+  console.log("  Открой в браузере: http://<IP-сервера>:" + PORT + "/index.html");
+  console.log("  Важно: порт :"+PORT+" обязателен (не :80). В панели хостинга открой TCP "+PORT+" в фаерволе.");
   console.log("  NODE_ENV=" + (process.env.NODE_ENV || "(not set)") + "  WEBHOOK_UPSTREAM=" + UPSTREAM);
   console.log("");
   console.log("  (Процесс не завершится — это HTTP-сервер. Останов: Ctrl+C или systemctl.)");
